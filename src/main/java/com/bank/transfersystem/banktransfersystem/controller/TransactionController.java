@@ -8,6 +8,11 @@ import com.bank.transfersystem.banktransfersystem.payload.request.FundTransferRe
 import com.bank.transfersystem.banktransfersystem.payload.response.FundTransferResponse;
 import com.bank.transfersystem.banktransfersystem.service.AccountService;
 import com.bank.transfersystem.banktransfersystem.service.TransactionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 
@@ -16,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
@@ -74,5 +80,26 @@ public class TransactionController {
                 .transactionID(trx.getTransactionId().toString())
                 .build(), HttpStatus.OK);
     }
+
+    @GetMapping("/check-balance")
+    public ResponseEntity<String> balanceCheck(@RequestBody String request) throws JsonMappingException, JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(request);
+        String accountNo = node.get("accountNo").asText();
+        Optional<Account> account = accountService.findByAccountNo(accountNo);
+        ObjectNode respObj = (ObjectNode) node;
+        if(account.isPresent()) {
+            respObj.put("balance", account.get().getBalance());
+            return new ResponseEntity<>(respObj.toString(), HttpStatus.OK);
+        } else {
+            respObj.put("balance", "-");
+            respObj.put("message", "Account is not exist");
+
+            return new ResponseEntity<>(respObj.toString(), HttpStatus.BAD_REQUEST);
+        }
+        
+    }
+
     
 }
