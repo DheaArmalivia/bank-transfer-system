@@ -40,4 +40,16 @@ public class AccountServiceImpl implements AccountService {
         repository.deleteById(id);
     }
 
+    @Override
+    public Optional<Account> findByAccountNoAndUserId(String accountNo, Long userId) {
+        // TODO Auto-generated method stub
+        return repository.findFirstByAccountNoAndUserUserIdOrderByAccountIdAsc(accountNo, userId);
+    }
+
+    @Override
+    public Optional<Account> findByAccountNo(String accountNo) {
+        // TODO Auto-generated method stub
+        return repository.findByAccountNo(accountNo);
+    }
+
 }

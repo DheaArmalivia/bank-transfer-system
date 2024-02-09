@@ -18,4 +18,8 @@ public interface AccountService {
 
     void deleteById(Long id);
 
+    Optional<Account> findByAccountNoAndUserId(String accountNo, Long userId);
+
+    Optional<Account> findByAccountNo(String accountNo);
+
 }
