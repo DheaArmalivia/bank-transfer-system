@@ -26,6 +26,7 @@ import com.bank.transfersystem.banktransfersystem.payload.request.FundTransferRe
 import com.bank.transfersystem.banktransfersystem.service.AccountService;
 import com.bank.transfersystem.banktransfersystem.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -150,4 +151,35 @@ class TransactionControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @Test
+    public void checkBalance_returnBalanceAndStatusOK() throws Exception {
+        when(accountService.findByAccountNo("123456")).thenReturn(Optional.of(sourceAccountExist));
+
+        ObjectNode request = mapper.createObjectNode();
+        request.put("accountNo", "123456");
+
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/rest/api/transaction/check-balance")
+            .content(mapper.writeValueAsString(request))
+            .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void checkBalance_accountNotExist_returnBalanceAndStatusOK() throws Exception {
+        when(accountService.findByAccountNo("123456")).thenReturn(Optional.empty());
+
+        ObjectNode request = mapper.createObjectNode();
+        request.put("accountNo", "123456");
+
+        ResultActions response = mockMvc.perform(
+            MockMvcRequestBuilders.get("/rest/api/transaction/check-balance")
+            .content(mapper.writeValueAsString(request))
+            .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    
 }
